@@ -1,0 +1,171 @@
+{
+  "id": "b0b721f3-b2d6-5714-92f0-fcdc06d4899f",
+  "versionId": "42bf7230-0140-57f7-a3b7-383d7b406e74",
+  "name": "EventOps read calendar",
+  "nodes": [
+    {
+      "id": "authenticated-webhook",
+      "name": "Authenticated webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eventops-calendar",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "EventOps webhook key"
+        }
+      }
+    },
+    {
+      "id": "validate-event",
+      "name": "Validate event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
+      }
+    },
+    {
+      "id": "read-calendar",
+      "name": "Read calendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        "options": {
+          "timeout": 20000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.event_id }}"
+            },
+            {
+              "name": "maxResults",
+              "value": "100"
+            },
+            {
+              "name": "singleEvents",
+              "value": "true"
+            }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "Dedicated synthetic Google account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "envelope",
+      "name": "Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "if($json.nextPageToken) throw new Error('Calendar result limit exceeded'); const e=$('Validate event').first().json.event_id; const data=($json.items||[]).filter(x=>(x.summary||'').includes(e)||(x.description||'').includes(e)); return [{json:{data,complete:true}}];"
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Authenticated webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate event": {
+      "main": [
+        [
+          {
+            "node": "Read calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read calendar": {
+      "main": [
+        [
+          {
+            "node": "Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envelope": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 600,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

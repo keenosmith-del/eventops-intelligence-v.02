@@ -1,0 +1,146 @@
+{
+  "id": "690d75ba-3033-57e6-b11b-3b77f044f23a",
+  "versionId": "950610cc-de48-5eaa-bfce-60514fad9f5e",
+  "name": "EventOps read web",
+  "nodes": [
+    {
+      "id": "authenticated-webhook",
+      "name": "Authenticated webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eventops-web",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "EventOps webhook key"
+        }
+      }
+    },
+    {
+      "id": "validate-event",
+      "name": "Validate event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
+      }
+    },
+    {
+      "id": "read-directory",
+      "name": "Read directory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "https://REPLACE_WITH_VERCEL_HOST/reference/directory.json",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "envelope",
+      "name": "Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const data=$input.all().map(i=>i.json); if(data.length>500 || data.some(r=>!r.record_id || !r.email || !r.participant_id || !Array.isArray(r.event_ids))) throw new Error('Invalid directory'); return [{json:{data,complete:true}}];"
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Authenticated webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate event": {
+      "main": [
+        [
+          {
+            "node": "Read directory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read directory": {
+      "main": [
+        [
+          {
+            "node": "Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envelope": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 600,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

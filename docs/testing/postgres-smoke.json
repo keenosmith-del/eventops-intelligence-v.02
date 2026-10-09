@@ -1,0 +1,37 @@
+{
+  "api_url": "http://localhost:5051",
+  "mode": "fixture",
+  "database": "PostgreSQL",
+  "run_id": "0fa71ece-3676-4786-8b14-20f4cdd26066",
+  "conversation_id": "8bc83a9b-20fb-4846-ae99-1f9c93ea6122",
+  "status": "review_required",
+  "records": 7,
+  "verified": 1,
+  "stages": [
+    "planning",
+    "planning",
+    "calendar",
+    "calendar",
+    "gmail",
+    "gmail",
+    "web",
+    "web",
+    "extraction",
+    "verification",
+    "human_review",
+    "outcome"
+  ],
+  "checks": [
+    "health",
+    "session",
+    "ingestion",
+    "RAG contract",
+    "durable conversation",
+    "idempotent run",
+    "worker",
+    "verification",
+    "CSV",
+    "review note"
+  ],
+  "external_live_services_verified": false
+}

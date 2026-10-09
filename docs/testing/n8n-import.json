@@ -1,0 +1,7 @@
+{
+  "version": "2.42.6",
+  "image": "docker.n8n.io/n8nio/n8n@sha256:526daa38b68e923cc00c5280d18b4da5d489f115a73bdbf3b8e452b184197a9a",
+  "workflow_import_count": 3,
+  "import_succeeded": true,
+  "credentialed_execution_verified": false
+}

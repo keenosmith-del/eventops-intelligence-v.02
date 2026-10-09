@@ -1,0 +1,312 @@
+{
+  "id": "faf3926b-ee12-563e-abc4-cd4bbfba46d5",
+  "versionId": "bb17d37b-56fd-5aa2-afc3-f089d12a22a5",
+  "name": "EventOps read gmail",
+  "nodes": [
+    {
+      "id": "authenticated-webhook",
+      "name": "Authenticated webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eventops-gmail",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "EventOps webhook key"
+        }
+      }
+    },
+    {
+      "id": "validate-event",
+      "name": "Validate event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
+      }
+    },
+    {
+      "id": "search-registrations",
+      "name": "Search registrations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages",
+        "options": {
+          "timeout": 20000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ 'subject:(' + $json.event_id + ')' }}"
+            },
+            {
+              "name": "maxResults",
+              "value": "30"
+            }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "Dedicated synthetic Google account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "bound-message-ids",
+      "name": "Bound message IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "if($json.nextPageToken) throw new Error('Mailbox result limit exceeded'); const messages=$json.messages||[]; return messages.length?messages.map(m=>({json:{id:m.id,has_messages:true}})):[{json:{has_messages:false}}];"
+      }
+    },
+    {
+      "id": "has-messages",
+      "name": "Has messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has",
+              "leftValue": "={{ $json.has_messages }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "read-message",
+      "name": "Read message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "url": "={{ 'https://gmail.googleapis.com/gmail/v1/users/me/messages/' + $json.id }}",
+        "options": {
+          "timeout": 20000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "format",
+              "value": "full"
+            }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ASSIGN_IN_N8N",
+          "name": "Dedicated synthetic Google account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "envelope",
+      "name": "Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function body(p){if(p.parts)return p.parts.filter(x=>x.mimeType!=='text/html').map(body).join('\\n').slice(0,20000);return p.mimeType==='text/plain'?Buffer.from(p.body?.data||'', 'base64url').toString('utf8').slice(0,20000):'';}const data=$input.all().map(i=>{const m=i.json,p=m.payload||{};return {id:m.id,subject:(p.headers||[]).find(h=>h.name.toLowerCase()==='subject')?.value||'',body:body(p)};});return [{json:{data,complete:true}}];"
+      }
+    },
+    {
+      "id": "empty-envelope",
+      "name": "Empty envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{data:[],complete:true}}];"
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Authenticated webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate event": {
+      "main": [
+        [
+          {
+            "node": "Search registrations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search registrations": {
+      "main": [
+        [
+          {
+            "node": "Bound message IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bound message IDs": {
+      "main": [
+        [
+          {
+            "node": "Has messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has messages": {
+      "main": [
+        [
+          {
+            "node": "Read message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Empty envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read message": {
+      "main": [
+        [
+          {
+            "node": "Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envelope": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empty envelope": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 600,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}
