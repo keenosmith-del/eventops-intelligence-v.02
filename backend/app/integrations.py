@@ -2,9 +2,12 @@ import base64
 import json
 import time
 from urllib.parse import urlparse
+
 import httpx
 from cryptography.fernet import Fernet
-from .config import settings, ROOT
+
+from .config import ROOT, settings
+from .costs import CostPolicyError, reserve
 from .db import DB, Credential, log_event
 from .schemas import Participant
 
@@ -39,7 +42,15 @@ def store_token(payload):
 
 
 def request_json(method, url, run_id=None, stage=None, **kwargs):
-    for attempt in range(3):
+    n8n = url.startswith(settings().n8n_base_url.rstrip("/") + "/webhook/eventops-")
+    # Never replay a workflow POST: account for its maximum downstream fan-out.
+    attempts = 1 if n8n else 3
+    units = 64 if n8n and stage == "gmail" else (4 if n8n else 1)
+    for attempt in range(attempts):
+        try:
+            reserve("http", url=url, scope=run_id, units=units)
+        except CostPolicyError as exc:
+            raise ToolFailure(str(exc)) from exc
         try:
             with httpx.Client(
                 timeout=httpx.Timeout(20, connect=5), follow_redirects=False
@@ -57,7 +68,7 @@ def request_json(method, url, run_id=None, stage=None, **kwargs):
             transient = not isinstance(
                 exc, httpx.HTTPStatusError
             ) or exc.response.status_code in (429, 500, 502, 503, 504)
-            if attempt == 2 or not transient:
+            if attempt == attempts - 1 or not transient:
                 raise ToolFailure(
                     "External request failed"
                     + (
@@ -127,6 +138,8 @@ class Tools:
         self.cfg = settings()
 
     def call(self, tool, event_id):
+        if tool not in ("calendar", "gmail", "web"):
+            raise ToolFailure("Tool is not allowed")
         if self.cfg.mode == "fixture":
             if tool == "web":
                 return json.loads((ROOT / "data/structured/directory.json").read_text())
@@ -185,7 +198,9 @@ class Tools:
                     headers=headers,
                     params={"q": event_id, "maxResults": 100, "singleEvents": "true"},
                 )
-                if response.get("nextPageToken"):
+                if len(response.get("items", [])) > 100 or response.get(
+                    "nextPageToken"
+                ):
                     raise ToolFailure(
                         "Calendar results exceed bounded limit; narrow the dedicated test calendar"
                     )
@@ -205,7 +220,9 @@ class Tools:
                     headers=headers,
                     params={"q": f"subject:({event_id})", "maxResults": 30},
                 )
-                if response.get("nextPageToken"):
+                if len(response.get("messages", [])) > 30 or response.get(
+                    "nextPageToken"
+                ):
                     raise ToolFailure(
                         "Gmail results exceed bounded limit; narrow the dedicated test mailbox"
                     )
@@ -239,6 +256,12 @@ class Tools:
                 raise ToolFailure("Tool is not allowed")
         if not isinstance(result, list) or len(result) > 500:
             raise ToolFailure("Invalid external records")
+        if tool == "gmail" and len(result) > (
+            20 if self.cfg.integration_transport == "n8n" else 30
+        ):
+            raise ToolFailure("Gmail record limit exceeded")
+        if tool == "calendar" and len(result) > 100:
+            raise ToolFailure("Calendar record limit exceeded")
         if tool == "web":
             try:
                 result = [Participant.model_validate(r).model_dump() for r in result]

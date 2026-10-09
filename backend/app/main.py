@@ -16,7 +16,6 @@ from sqlalchemy.orm import Session as DBSession
 from sqlalchemy.exc import IntegrityError
 from .config import settings, ROOT
 from .db import (
-    DB,
     Session,
     OAuthState,
     Credential,
@@ -490,6 +489,12 @@ def export(run_id: str, owner=Depends(authenticated), db: DBSession = Depends(ge
 def google_start(
     request: Request, owner=Depends(authenticated), db: DBSession = Depends(get_db)
 ):
+    if (
+        cfg.mode != "live"
+        or not cfg.external_calls_enabled
+        or not cfg.google_unbilled_confirmed
+    ):
+        raise HTTPException(503, "Google access disabled by zero-cost policy")
     if not (
         cfg.google_client_id and cfg.google_client_secret and cfg.token_encryption_key
     ):

@@ -8,6 +8,12 @@ for path in (Path(__file__).resolve().parents[1] / "automations/n8n").glob("*.js
     names = {n["name"] for n in w["nodes"]}
     assert not w["active"]
     assert any(
+        "ZERO_COST_APPROVED=false" in n["parameters"].get("jsCode", "")
+        for n in w["nodes"]
+    )
+    assert w["settings"]["executionTimeout"] <= 600
+    assert all(n.get("maxTries", 1) <= 3 for n in w["nodes"])
+    assert any(
         n["type"].endswith("webhook")
         and n["parameters"]["authentication"] == "headerAuth"
         for n in w["nodes"]

@@ -36,7 +36,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
+        "jsCode": "const ZERO_COST_APPROVED=false; if(!ZERO_COST_APPROVED) throw new Error('External calls disabled by zero-cost policy'); const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
       }
     },
     {

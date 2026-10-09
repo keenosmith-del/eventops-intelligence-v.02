@@ -79,7 +79,7 @@ for tool in ["calendar", "gmail", "web"]:
     )
     validate = code(
         "Validate event",
-        "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];",
+        "const ZERO_COST_APPROVED=false; if(!ZERO_COST_APPROVED) throw new Error('External calls disabled by zero-cost policy'); const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];",
         220,
     )
     nodes = [webhook, validate]
@@ -101,7 +101,7 @@ for tool in ["calendar", "gmail", "web"]:
         nodes.append(
             code(
                 "Envelope",
-                "if($json.nextPageToken) throw new Error('Calendar result limit exceeded'); const e=$('Validate event').first().json.event_id; const data=($json.items||[]).filter(x=>(x.summary||'').includes(e)||(x.description||'').includes(e)); return [{json:{data,complete:true}}];",
+                "if(($json.items||[]).length>100 || $json.nextPageToken) throw new Error('Calendar result limit exceeded'); const e=$('Validate event').first().json.event_id; const data=($json.items||[]).filter(x=>(x.summary||'').includes(e)||(x.description||'').includes(e)); return [{json:{data,complete:true}}];",
                 660,
             )
         )
@@ -129,13 +129,13 @@ for tool in ["calendar", "gmail", "web"]:
                 "https://gmail.googleapis.com/gmail/v1/users/me/messages",
                 440,
                 "gmailOAuth2",
-                {"q": "={{ 'subject:(' + $json.event_id + ')' }}", "maxResults": "30"},
+                {"q": "={{ 'subject:(' + $json.event_id + ')' }}", "maxResults": "20"},
             )
         )
         nodes.append(
             code(
                 "Bound message IDs",
-                "if($json.nextPageToken) throw new Error('Mailbox result limit exceeded'); const messages=$json.messages||[]; return messages.length?messages.map(m=>({json:{id:m.id,has_messages:true}})):[{json:{has_messages:false}}];",
+                "if($json.nextPageToken) throw new Error('Mailbox result limit exceeded'); const messages=$json.messages||[]; if(messages.length>20) throw new Error('Mailbox record limit exceeded'); return messages.length?messages.map(m=>({json:{id:m.id,has_messages:true}})):[{json:{has_messages:false}}];",
                 660,
             )
         )

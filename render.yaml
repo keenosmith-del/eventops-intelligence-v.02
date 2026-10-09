@@ -7,7 +7,11 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: MODE
-        value: live
+        value: fixture
+      - key: ENVIRONMENT
+        value: production
+      - key: EXTERNAL_CALLS_ENABLED
+        value: "false"
       - key: DATABASE_URL
         sync: false
       - key: DEMO_PASSWORD

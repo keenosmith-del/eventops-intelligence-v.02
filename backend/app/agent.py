@@ -1,12 +1,16 @@
 import threading
 import time
 from typing import TypedDict
-from sqlalchemy import select, delete, or_
-from langgraph.graph import StateGraph, START, END
-from .db import DB, Run, Verification, now, log_event
-from .schemas import Attendee
+
+from langgraph.graph import END, START, StateGraph
+from sqlalchemy import delete, or_, select
+
 from .ai import AI
+from .config import settings
+from .costs import operation
+from .db import DB, Run, Verification, log_event, now
 from .integrations import Tools
+from .schemas import Attendee
 from .verify import verify
 
 
@@ -215,9 +219,10 @@ class Worker:
                         "event_id": run.event_id,
                     }
                     rid = run.id
+                    run_mode = run.mode
                 renew_stop = threading.Event()
 
-                def renew():
+                def renew(renew_stop=renew_stop, rid=rid):
                     while not renew_stop.wait(20):
                         with DB() as db:
                             r = db.get(Run, rid)
@@ -228,9 +233,14 @@ class Worker:
                 heartbeat = threading.Thread(target=renew, daemon=True)
                 heartbeat.start()
                 try:
+                    if run_mode != settings().mode:
+                        raise RuntimeError(
+                            "Run mode differs from current configuration; start a new run"
+                        )
                     config = {"configurable": {"thread_id": rid}, "recursion_limit": 20}
                     checkpoint = self.graph.get_state(config)
-                    self.graph.invoke(None if checkpoint.next else initial, config)
+                    with operation(rid):
+                        self.graph.invoke(None if checkpoint.next else initial, config)
                 except Exception as exc:
                     with DB() as db:
                         r = db.get(Run, rid)

@@ -36,7 +36,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
+        "jsCode": "const ZERO_COST_APPROVED=false; if(!ZERO_COST_APPROVED) throw new Error('External calls disabled by zero-cost policy'); const e=$json.body?.event_id; if(!/^EVT-(101|102|103)$/.test(e||'')) throw new Error('Event is not allowed'); return [{json:{event_id:e}}];"
       }
     },
     {
@@ -93,7 +93,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "if($json.nextPageToken) throw new Error('Calendar result limit exceeded'); const e=$('Validate event').first().json.event_id; const data=($json.items||[]).filter(x=>(x.summary||'').includes(e)||(x.description||'').includes(e)); return [{json:{data,complete:true}}];"
+        "jsCode": "if(($json.items||[]).length>100 || $json.nextPageToken) throw new Error('Calendar result limit exceeded'); const e=$('Validate event').first().json.event_id; const data=($json.items||[]).filter(x=>(x.summary||'').includes(e)||(x.description||'').includes(e)); return [{json:{data,complete:true}}];"
       }
     },
     {

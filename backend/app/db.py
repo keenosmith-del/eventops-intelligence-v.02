@@ -1,12 +1,22 @@
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import create_engine, String, Text, JSON, Float, UniqueConstraint
+from datetime import UTC, datetime
+
+from sqlalchemy import (
+    JSON,
+    Float,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    create_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+
 from .config import settings
 
 
 def now():
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def uid():
@@ -15,6 +25,12 @@ def uid():
 
 class Base(DeclarativeBase):
     pass
+
+
+class UsageCounter(Base):
+    __tablename__ = "usage_counters"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    used: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class Session(Base):
