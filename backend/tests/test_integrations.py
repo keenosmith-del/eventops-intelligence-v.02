@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import httpx
 import pytest
 from app.integrations import request_json, ToolFailure, decode_body, Tools
@@ -15,6 +16,10 @@ def test_malformed_external_json(monkeypatch):
 
         def __exit__(self, *args):
             pass
+
+        @contextmanager
+        def stream(self, *args, **kw):
+            yield self.request(*args, **kw)
 
         def request(self, *args, **kw):
             return httpx.Response(
@@ -41,6 +46,10 @@ def test_http_retry_is_bounded(monkeypatch):
 
         def __exit__(self, *args):
             pass
+
+        @contextmanager
+        def stream(self, *args, **kw):
+            yield self.request(*args, **kw)
 
         def request(self, *args, **kw):
             calls.append(1)
@@ -82,6 +91,10 @@ def test_n8n_workflow_post_is_never_replayed(monkeypatch):
         def __exit__(self, *args):
             pass
 
+        @contextmanager
+        def stream(self, *args, **kw):
+            yield self.request(*args, **kw)
+
         def request(self, *args, **kw):
             calls.append(1)
             raise httpx.ConnectError("offline")
@@ -111,3 +124,32 @@ def test_gmail_over_limit_rejected_before_message_fanout(monkeypatch):
     with pytest.raises(ToolFailure, match="bounded limit"):
         Tools("test").call("gmail", "EVT-102")
     assert len(calls) == 1
+
+
+def test_oversized_response_stops_stream_before_further_reads(monkeypatch):
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def iter_bytes(self, **kw):
+            yield b"x" * 2_000_001
+            pytest.fail("Read beyond hard response limit")
+
+    class Client:
+        def __init__(self, **kw):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        @contextmanager
+        def stream(self, *args, **kw):
+            yield Response()
+
+    monkeypatch.setattr(httpx, "Client", Client)
+    monkeypatch.setattr("app.integrations.reserve", lambda *args, **kw: None)
+    with pytest.raises(ToolFailure, match="size or duration"):
+        request_json("GET", "https://example.org")

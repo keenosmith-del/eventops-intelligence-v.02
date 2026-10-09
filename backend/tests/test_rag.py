@@ -154,3 +154,26 @@ def test_public_directory_snapshot_matches_authoritative_records():
     assert json.loads(
         (ROOT / "frontend/public/reference/directory.json").read_text()
     ) == json.loads((ROOT / "data/structured/directory.json").read_text())
+
+
+def test_index_model_mismatch_rejected_before_provider_call(db, monkeypatch):
+    from app.config import settings
+    from app.db import Document
+
+    ingest(db)
+    for document in db.scalars(select(Document)):
+        document.ingestion = {
+            **document.ingestion,
+            "mode": "live",
+            "embedding": "incompatible-model",
+        }
+    db.commit()
+    monkeypatch.setattr(settings(), "mode", "live")
+    ai = AI()
+    monkeypatch.setattr(
+        ai,
+        "intent",
+        lambda *args: pytest.fail("Provider called before validating index"),
+    )
+    with pytest.raises(ModelFailure, match="Index model differs"):
+        retrieve(db, "When is EVT-101?", [], ai)

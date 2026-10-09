@@ -55,11 +55,18 @@ def request_json(method, url, run_id=None, stage=None, **kwargs):
             with httpx.Client(
                 timeout=httpx.Timeout(20, connect=5), follow_redirects=False
             ) as client:
-                response = client.request(method, url, **kwargs)
-                response.raise_for_status()
-                if len(response.content) > 2_000_000:
-                    raise ToolFailure("External response exceeded size limit")
-                return response.json()
+                with client.stream(method, url, **kwargs) as response:
+                    response.raise_for_status()
+                    chunks, size = [], 0
+                    started = time.monotonic()
+                    for chunk in response.iter_bytes(chunk_size=65536):
+                        size += len(chunk)
+                        if size > 2_000_000 or time.monotonic() - started > 20:
+                            raise ToolFailure(
+                                "External response exceeded size or duration limit"
+                            )
+                        chunks.append(chunk)
+                    return json.loads(b"".join(chunks))
         except (
             httpx.TimeoutException,
             httpx.NetworkError,

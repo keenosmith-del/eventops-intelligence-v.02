@@ -1,3 +1,4 @@
+import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 from sqlalchemy import select
@@ -102,3 +103,42 @@ def test_checkpoint_survives_graph_recreation(db, tmp_path):
         assert result["status"] == "completed"
     with DB() as fresh:
         assert fresh.get(Run, run.id).status == "completed"
+
+
+def test_worker_rejects_fixture_run_after_live_mode_switch(monkeypatch):
+    import time
+    from types import SimpleNamespace
+    from app.agent import Worker
+    from app.config import settings
+    from app.db import DB, Run, uid
+
+    with DB() as db:
+        run = Run(
+            owner="operator",
+            idempotency_key=uid(),
+            objective="Verify EVT-101 registrations",
+            event_id="EVT-101",
+            mode="fixture",
+        )
+        db.add(run)
+        db.commit()
+        rid = run.id
+    monkeypatch.setattr(settings(), "mode", "live")
+    graph = SimpleNamespace(
+        get_state=lambda *args: pytest.fail("Mode mismatch executed the graph")
+    )
+    worker = Worker(graph)
+    worker.start()
+    try:
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            with DB() as db:
+                current = db.get(Run, rid)
+                if current.status == "failed":
+                    assert "Run mode differs" in current.error
+                    break
+            time.sleep(0.01)
+        else:
+            pytest.fail("Worker failed to reject mismatched run")
+    finally:
+        worker.close()
