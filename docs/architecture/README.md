@@ -162,3 +162,7 @@ All operational endpoints require an authenticated HTTP-only cookie except login
 | DELETE `/api/integrations/google` | Cookie + Origin | Remove locally saved credentials |
 
 Failure codes: 401 unauthenticated; 403 bad Origin; 404 inaccessible records; 409 idempotency/review conflict; 422 invalid input or unknown event; 429 bounded admission/throttle; 502 failed model/external contract; 503 unavailable configuration/service. UI surfaces actual API messages.
+
+## Audit maintenance and limits
+
+This documentation explains component responsibilities, interfaces and architectural decisions; it communicates design intent to implementation/reviewers rather than executing integrations. Validate claims against `backend/app/README.md`, the complete test suite and PostgreSQL verification scripts. The new `usage_counters` table stores atomic durable limits; `scripts/export_schema.py` reproduces the application DDL. The version-1 additive initializer is not a changed-column migration system. Read `docs/submission/compliance-matrix.md` and the deployment policy for current live/deployment blockers; diagrams and decisions cannot establish provider billing or live quality.

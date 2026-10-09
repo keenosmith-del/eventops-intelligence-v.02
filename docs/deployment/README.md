@@ -1,42 +1,73 @@
-# Deployment readiness and access blockers
+# Zero-cost operating policy and deployment readiness
 
-No public application deployment has been performed. Gemini, Google account consent, managed database and hosting authorization were not supplied; the operator explicitly selected implementation plus documented blockers. No paid resources, billing changes or repository settings changes are required or made.
+Audit date: 10 October 2026. Required operating cost is **R0 in cloud infrastructure and API charges**. No cloud deployment, billing activation, payment method, paid resource or account upgrade was performed. Existing local hardware, electricity and internet access are assumed available; the demonstration adds no cloud/API service subscription. This policy does not claim that an advertised free tier guarantees an unbilled account.
 
-## Free-tier plan
+## Safe default
 
-Use Vercel Hobby for this personal assessment frontend and Render Free for FastAPI, with a durable managed PostgreSQL service selected from an account that has a current free allocation. Check current service allowances before creating anything. Render free web services can sleep after inactivity, and Render's free PostgreSQL database expires after 30 days, so it should not be used as permanent assessment storage. Source: [Render free services](https://render.com/docs/free). Vercel Hobby's personal/non-commercial scope fits this fictional assessment; source: [Vercel Hobby](https://vercel.com/docs/plans/hobby).
+Use `MODE=fixture`, `ENVIRONMENT=local`, `EXTERNAL_CALLS_ENABLED=false`, local PostgreSQL and self-hosted n8n Community Edition. Fixture code never constructs a Gemini client, even if a key exists. Fixture tools read checked-in synthetic records, and checked-in n8n workflows are inactive and deny external calls. The frontend uses system fonts and makes no font-service requests. This fully exercises the local application without Gemini, Google, managed storage or hosting accounts. Fixture vectors/extraction/planning are labelled test doubles and do not complete the live assessment.
 
-n8n requires persistent database/configuration and its stable encryption key. No durable free public n8n host is assumed. Run it on an existing always-on machine with protected HTTPS ingress, or select a genuinely free durable host through the operator's account. Do not create a paid disk or paid web service. Direct integration transport permits the live agent to operate while durable public n8n hosting remains unavailable, but the n8n demonstration remains an outstanding assessment requirement.
+The safe alternative to any unconfirmed cloud service is the local demonstration on existing hardware. Do not add a card, accept a paid trial, increase quota, buy a domain, create a paid disk, subscribe to n8n Cloud, use a marketplace database, or change plans to make a test succeed. Do not evade quotas with multiple projects or keys. On exhaustion, stop and retain the failure; wait for the free quota reset.
 
-## Exact operator actions
+## Service-by-service audit
 
-1. Authorize the repository in the Vercel and Render accounts; no account credentials belong in source.
-2. Provision or select managed PostgreSQL without enabling billing. Obtain a connection URL with SSL. Use `postgresql+psycopg://...?...sslmode=require` (only one `?`, use `&` to append parameters). The account must permit LangGraph checkpoint table initialization.
-3. Import this Git repository into Render as a Docker web service using the root `backend/Dockerfile` and **Free** instance. `render.yaml` provides configuration; do not choose a paid instance when applying it. The Docker build context is repository root, so synthetic data is included.
-4. Set the private environment values listed in `backend/.env.example`. Set `MODE=live`, `COOKIE_SECURE=true`, `COOKIE_SAMESITE=none`, and the exact frontend HTTPS origin. Persistent keys: demo password, Gemini key, OAuth secrets, Fernet key. Do not regenerate Fernet keys on restarts.
-5. Import the frontend into Vercel with root directory `frontend`, build `npm run build`, output `dist`. Set `VITE_API_URL` to the actual HTTPS Render URL before building; production must not use localhost.
-6. Once the frontend URL is assigned, update backend `FRONTEND_ORIGIN`. Set backend `DIRECTORY_URL` to `https://ACTUAL_FRONTEND_HOST/reference/directory.json`. Fetch this resource and validate the JSON before a live run.
-7. Register the actual backend `/api/integrations/google/callback` HTTPS URI in Google Cloud and set `GOOGLE_REDIRECT_URI` accordingly. Complete read-only Google consent from the signed-in app with the dedicated fictional account.
-8. Ingest knowledge through authenticated Overview. This performs real embedding calls; successful build/deployment alone is not a RAG demonstration.
-9. If using n8n transport, deploy n8n with durable storage and protected editor, import/publish workflows, authorize Google in n8n, configure the directory node, and set HTTPS `N8N_BASE_URL` plus shared secret.
-10. Run `docs/testing/live-checks.md`, capture real run IDs and actual deployment URLs, then update the verification report. Failed operations stay recorded as failures.
-
-## Cookies and cold starts
-
-Cross-site frontend/API cookies require Secure + SameSite=None. Some browsers block third-party cookies even with these flags. Prefer frontend/API custom domains on the same registrable domain when already available, or a correctly configured same-origin API proxy. A domain purchase is not assumed. Test session creation and reload in the target browser before the walkthrough.
-
-Render sleeping services stop in-process workers. PostgreSQL retains queued runs/checkpoints; polling after an agent start keeps the active session requesting the backend. If the instance restarts, worker leases become recoverable after at most 90 seconds. There is no guarantee of uninterrupted autonomous execution while a free instance is asleep. For long unattended workflows, an existing always-on host or an approved durable worker service is necessary.
-
-## Account-dependent blockers
-
-| Capability | Required access | Current status |
+| Service/dependency | Potential charge or limitation | R0 rule and safe alternative |
 |---|---|---|
-| Live semantic RAG and grounded Gemini answers | Free Gemini API key/quota | Not provided; implemented, unverified |
-| Live planning and email extraction | Gemini API key/quota | Not provided; function calls and structured contracts implemented |
-| Calendar/Gmail reads | Dedicated test account, OAuth web client and consent | Not provided; adapters implemented |
-| Reachable published reference endpoint | Frontend deployment/account | Static resource prepared, public host pending |
-| Public RAG application | Vercel, Render and managed PostgreSQL access | Configurations prepared, deployment pending |
-| Credentialed n8n tools | OAuth + webhook credentials + published workflows | Local infrastructure/import verification only |
-| Durable public n8n | Existing authorized persistent free infrastructure | No host supplied |
+| Gemini generation/planning/extraction | Free and paid tiers use the same model names; quota, region and account eligibility vary | Developer API only, explicit key, `vertexai=False`; no paid fallback, caching, grounding products, batch API or priority tier. Confirm actual unbilled project and model access before setting `GEMINI_FREE_TIER_CONFIRMED=true`; otherwise fixtures |
+| Gemini embeddings | Existing `gemini-embedding-001` remains documented, but its price is absent from the currently opened pricing table; a free allocation for this project is **not confirmed** | Require independent current provider/account confirmation for this exact model as part of the Gemini flag. Do not infer price from availability. If unconfirmed, keep live ingestion blocked and use labelled fixture vectors; a deliberate alternative-model migration requires a new pricing audit and full re-ingestion |
+| Google Calendar/Gmail/OAuth | Workspace quota policy is changing in 2026; quota increases require billing and paid higher access is planned | Dedicated synthetic account/project, billing disabled, no quota increase; verify current terms and quotas before `GOOGLE_UNBILLED_CONFIRMED=true`. No automatic paid quota or alternative API. Otherwise fixture sources |
+| Directory HTTP | Charges can occur on its host for bandwidth/builds; an arbitrary URL may belong to a billed provider | Exact operator-configured HTTPS URL only, no redirects/model-selected URLs; confirm owning account before `DIRECTORY_ZERO_COST_CONFIRMED=true`. Otherwise local directory fixtures |
+| n8n | Cloud subscription, enterprise features and hosting/storage can be paid; Community software does not provide free hosting | Existing local Community Edition under its applicable licence, persistent PostgreSQL/config volume and stable encryption key. No Cloud/enterprise purchase; `N8N_ZERO_COST_CONFIRMED` plus all underlying provider confirmations required. Public durable host unconfirmed; local n8n is the safe alternative |
+| PostgreSQL/vector storage | Software is free; managed compute/storage/backups/network can be billed, paused or deleted | Existing local PostgreSQL volume, exact cosine retrieval in existing JSON vectors; no paid vector database. No permanent managed free allocation has been verified. Render's expiring free database is unsuitable for durable submission |
+| Render backend | Even free instances can incur supplementary bandwidth/build charges when a payment method exists; sleeps interrupt workers | Only a verified Free account **without a payment method**, no paid disks/add-ons/other services. Current FAQ says services disable instead of charging without payment. Account state unavailable, so public deployment is pending; run local FastAPI |
+| Vercel frontend | Hobby is personal/non-commercial; Pro/trials/add-ons/marketplace services may cost money | Verify actual Hobby plan, no trials/upgrades/add-ons; static frontend only. Hobby limits generally pause features. Actual account unavailable; use Vite locally |
+| React/Vite/FastAPI/LangGraph/SQLAlchemy/psycopg/httpx/cryptography/Gen AI SDK | Libraries have no per-call platform fee, but the SDK targets a potentially billed API | Local installed dependencies and checked-in locks; no paid tracing, telemetry, hosted agent platform or SaaS persistence configured |
+| Docker runtime | Docker Desktop licensing depends on organization/use eligibility | Confirm existing Desktop eligibility; free local Docker Engine on an existing Linux host is an alternative. No new VM/host purchase or cloud deployment required |
+| CI, registry, other APIs | Hosted runners, container pulls, bandwidth and unrelated subscriptions may have costs | No hosted CI resource provisioned; tests run locally. Only enumerated server endpoints are permitted, and frontend requests only its API and static assets. Existing account costs are not proven absent by this code |
 
-The system is implementation-ready for these steps; the mandatory live assessment is not complete until they are executed and verified.
+Current primary sources: [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing) lists free and paid token prices separately; [model lifecycle](https://ai.google.dev/gemini-api/docs/deprecations/) restricts 2.5 model access to prior users, so a new project may not be eligible. [Embedding documentation](https://ai.google.dev/gemini-api/docs/embeddings) documents embedding-001 availability and incompatible spaces on migration. Model availability is not pricing confirmation.
+
+[Workspace policy](https://developers.google.com/workspace/tools-safety), [Gmail quotas](https://developers.google.com/workspace/gmail/api/reference/quota) and [Calendar quotas](https://developers.google.com/workspace/calendar/api/guides/quota) describe the 2026 changes and advance notice for billing details. Recheck before live tests. [Render FAQ](https://render.com/docs/faq) explicitly permits charges on free instances with a payment method; [Render Free limitations](https://render.com/docs/free) describe sleeping services and expiring free PostgreSQL. [Vercel Hobby](https://vercel.com/docs/plans/hobby) describes free-plan limits and personal use. [n8n licence](https://support.n8n.io/article/can-i-use-your-license-for-my-use-case), [PostgreSQL licence](https://www.postgresql.org/about/licence/) and [Docker Desktop licence](https://docs.docker.com/subscription/desktop-license/) distinguish software eligibility from hosting costs.
+
+## Enforced execution controls
+
+`backend/app/costs.py` denies external calls unless live mode, the global enable flag and applicable account confirmation are all true. Flags are operator attestations, **not machine verification of billing**. Check the actual account console, applicable terms, project tier and quota first; store an account audit privately without credentials. Re-audit after any plan/terms change and leave flags false when uncertain. A budget on a paid account could still incur charges on its first request: quotas are defence in depth, never a substitute for unbilled account confirmation.
+
+| Control | Enforced limit |
+|---|---|
+| Model attempts, including embedding and failed/retried calls | 20 per UTC day, nine per ingestion/query/run operation; configurable downward only |
+| Application HTTP reservations | 100 units per UTC day and operation; configurable downward only |
+| Durable accounting | Atomic upsert/conditional increment in PostgreSQL; day and operation counters commit together; no refunds; survives restart; DB failure denies calls |
+| SDK requests | Explicit Developer API; SDK retry attempts set to one; application structured/embedding retry maximum three; planning one |
+| Input/output | 60,000 total input characters per model attempt; 4,096 generation output tokens; prior RAG context eight messages, at most 4,000 characters each |
+| Direct source reads | Calendar maximum 100 events; Gmail maximum 30 messages; directory maximum 500 records; pagination rejected rather than silently truncated |
+| HTTP attempts | Maximum three attempts with bounded backoff, 20-second timeout and five-second connection timeout; no redirects; 2 MB streamed response cap; stream collection stops at 20 seconds (a current read is also bounded by its timeout) |
+| Agent execution | Maximum three selected tools, graph recursion limit 20, bounded active queue; saved run mode must equal current mode; operation budget ID survives worker recovery |
+| n8n | Inactive default, explicit deny node, three node attempts, 600-second workflow timeout, at most 20 Gmail IDs; FastAPI workflow POST attempted once |
+
+n8n reserves 64 units for Gmail and four each for Calendar/web before dispatch, accounting conservatively for application HTTP-node fan-out. OAuth refresh inside n8n is outside FastAPI's individual metering. Direct manual n8n execution also bypasses FastAPI's daily counter. Restrict editor/webhook credentials and execute only bounded synthetic cases; keep workflows inactive outside the demonstration. No claim is made that FastAPI controls every request made by a separately operated n8n instance. All underlying services must be independently confirmed unbilled.
+
+Reservations count attempts rather than currency or provider-specific quota units. Counters currently have no retention cleanup; do not delete active operation/day counters to restore quota. Existing sessions/runs are not automatically authorized to incur costs. Fixture runs fail if recovered under live configuration. A full evaluation can exceed one day's cap: stage it across days rather than increase limits.
+
+## Local and production persistence
+
+Local operational state uses PostgreSQL named volumes, with persistent n8n configuration and its separate database. SQLite is allowed only for local fixture tests. `ENVIRONMENT=production` rejects SQLite even in fixture mode, requires HTTPS frontend plus secure cookies, and requires SSL for a remote PostgreSQL URL. `render.yaml` defaults to fixture mode with external calls disabled; it does not provision a database, paid disk or n8n host.
+
+Documents/checksums/vectors, conversation/messages, encrypted credentials/sessions, agent runs/results/events, usage counters and LangGraph checkpoints belong to PostgreSQL. No authoritative live state depends on ephemeral Render filesystem. Synthetic repository files are build inputs. Restart evidence is in `docs/testing/restart-check.json`, pending checkpoint evidence in `checkpoint-check.json`, and budget concurrency evidence in `budget-check.json`. Local durability is verified; production storage/retention/restart behaviour is **pending**.
+
+No durable strictly R0 managed PostgreSQL or public n8n account has been confirmed. A public Vercel/Render split deployment therefore cannot yet be certified R0 or submission-complete. An existing authorized always-on host with persistent PostgreSQL/n8n is a possible alternative only after verifying its incremental cost is zero. Sleeping free Render services cannot guarantee uninterrupted unattended work. Cross-site browser cookies can also be blocked; live browser testing is required.
+
+## Exact steps for genuine live verification
+
+1. Run `backend/.venv/bin/python scripts/live_preflight.py`. Its current blocked result is expected and recorded; it makes no provider calls.
+2. Independently verify current unbilled Gemini access for **both** configured model IDs, Google project billing disabled/current quotas, and zero-cost directory/n8n hosting. If any cannot be established, leave that capability disabled; do not upgrade. Gemini 2.5 new-project restrictions and missing current embedding-001 pricing are explicit blockers requiring provider/account evidence.
+3. Configure server-side `GEMINI_API_KEY`, Google OAuth client ID/secret, callback, stable `TOKEN_ENCRYPTION_KEY`, dedicated `CALENDAR_ID`, exact `DIRECTORY_URL` and demo password. Never place secrets in `VITE_*` variables. Set `MODE=live`, `EXTERNAL_CALLS_ENABLED=true` and only confirmed applicable flags. Restart and run preflight again.
+4. Populate the dedicated fictional account using fixture event summaries/registration bodies, including deliberate edge cases. Google-assigned IDs will differ from local IDs. Connect OAuth through the authenticated application.
+5. Re-ingest three documents; verify live model/dimension metadata. Test factual, unsupported and contextual questions with original record citations. Run `scripts/evaluate_rag.py --max-cases 4`; inspect errors and manual entailment. Complete remaining case IDs on a later UTC day within budget; preserve results and never call a partial evaluation complete.
+6. Run an agent objective via direct transport; inspect actual Calendar/Gmail/HTTP IDs, structured extraction, discrepancy statuses, CSV and human review history. Exercise consent denial, quota/error and unavailable-source paths following `docs/testing/live-checks.md`.
+7. For n8n, import guarded inactive workflows, assign Header Auth/read-only OAuth, replace fixed directory URL, and confirm all providers first. Only then deliberately change `ZERO_COST_APPROVED` to true, publish for the walkthrough, set backend transport/URL/shared secret, and repeat each bounded tool plus agent test. Leave inactive afterward.
+8. For public deployment, verify Vercel Hobby and Render Free **without a payment method**, then separately establish a durable unbilled PostgreSQL allocation and n8n host. Until all are confirmed, use local operation. Set `ENVIRONMENT=production`, PostgreSQL SSL, exact HTTPS frontend/callback/API URL, secure cookies and stable encryption keys. No paid provisioning is authorized.
+9. Run actual deployed login/reload/RAG/agent/CSV/directory and restart checks. Capture real URLs, run IDs, evidence and quota/account verification; manually review semantic grounding. Update the compliance matrix with measured live results. Initial PDFs remain implementation snapshots until submission evidence is finalized.
+
+## Remaining access blockers
+
+Missing: Gemini free-tier key and actual model eligibility/pricing evidence; dedicated Google account consent/OAuth credentials and current unbilled quota proof; token encryption key for live credentials; reachable confirmed-unbilled HTTPS directory; Vercel/Render authorization and plan/payment-state confirmation; durable confirmed-unbilled production PostgreSQL and n8n host; n8n OAuth/webhook credentials. No mock result resolves these blockers.

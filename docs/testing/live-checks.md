@@ -1,6 +1,6 @@
 # Genuine live integration verification
 
-Run only with dedicated fictional accounts. Set `MODE=live`; never present fixture evidence as live evidence.
+Run only after the [zero-cost operating policy](../deployment/README.md) is satisfied for the actual accounts. Run `scripts/live_preflight.py`; a blocked result is explicit, never skipped/passed. Set `MODE=live`, `EXTERNAL_CALLS_ENABLED=true` and independently verified provider flags. Never enable billing, increase quotas or present fixtures as live evidence. Current execution status is `live-preflight.json`.
 
 ## RAG
 
@@ -9,7 +9,7 @@ Run only with dedicated fictional accounts. Set `MODE=live`; never present fixtu
 3. Ask exact-ID factual, global policy and multi-record questions; expand source IDs and compare every factual assertion with those records.
 4. Ask an unsupported weather question and an ambiguous question without conversation context; verify refusal or clarification rather than invented facts.
 5. Ask a contextual follow-up, reload the browser and restart the backend; verify history and context persist.
-6. Run `scripts/evaluate_rag.py`; inspect retrieval recall, expected answer terms and support classification. The script records generated evidence, not expected successful outputs. Manually grade semantic grounding and ambiguity handling. Do not treat citation membership alone as entailment.
+6. Run `scripts/evaluate_rag.py --max-cases 4`; complete remaining cases on a later UTC day within the daily budget, preserving prior results; inspect retrieval recall, expected answer terms and support classification. The script records generated evidence, not expected successful outputs. Manually grade semantic grounding and ambiguity handling. Do not treat citation membership alone as entailment.
 
 ## Direct Calendar/Gmail/HTTP
 
@@ -25,13 +25,17 @@ Run only with dedicated fictional accounts. Set `MODE=live`; never present fixtu
 
 ## n8n
 
-1. Import/publish each workflow and assign least-privilege OAuth plus Header Auth credentials.
+1. Import inactive workflows, confirm unbilled provider/host accounts, deliberately enable `ZERO_COST_APPROVED` only for bounded testing, then publish and assign least-privilege OAuth plus Header Auth credentials.
 2. An unauthenticated webhook request must fail; invalid EVT identifiers must fail validation.
 3. Trigger each valid production webhook; confirm `data` is an array and `complete=true`, with actual Google records or HTTP directory data.
 4. Switch backend transport to n8n and repeat an agent run. Inspect corresponding n8n executions and FastAPI execution history.
-5. Exercise an empty mailbox, a >30-message search, a malformed directory and a failed Google credential. Empty data must be distinguished from failure; bounded truncation must fail, not silently claim completeness.
+5. Exercise an empty mailbox, a >20-message search, a malformed directory and a failed Google credential. Empty data must be distinguished from failure; bounded truncation must fail, not silently claim completeness.
 6. Restart n8n and confirm workflows/credentials survive through persistent PostgreSQL and a stable encryption key.
 
 ## Public deployment
 
 Record only actual verified URLs. Check HTTPS frontend, API readiness, source endpoint, exact CORS, login/logout/reload, credentialed fetch, CSV and durable conversations. Start a run, interrupt/restart the backend, wait for lease recovery and confirm results/history. Record cold-start behavior and database provider retention. Capture screenshots only from real executions and redact account identifiers or credentials.
+
+## Acceptance and evidence
+
+A test blocked by credentials is recorded as **not executed / pending credentials**, never passed. Model/provider retries consume the shared daily budget; exhaustion is a meaningful recorded failure, not permission to change account tier. Re-ingestion consumes model attempts too. After live tests, leave workflows inactive and external calls disabled unless continuing an independently verified unbilled demonstration. Record actual model access/pricing, account tier, directory version, source IDs, failure paths, run/checkpoint continuity, manual factual grounding and deployed storage retention separately from local results.

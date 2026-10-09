@@ -31,3 +31,11 @@
 ## ADR-008 - Minimal session, separate Google OAuth
 
 **Accepted.** Application access uses a shared backend-validated demo session with opaque HTTP-only cookies. Google access uses separate read-only OAuth consent and encrypted tokens. Credentials never enter frontend code. This satisfies the assessment without an elaborate identity platform; public production beyond the assessment needs stronger account/abuse controls.
+
+## Audit maintenance and limits
+
+This documentation explains component responsibilities, interfaces and architectural decisions; it communicates design intent to implementation/reviewers rather than executing integrations. Validate claims against `backend/app/README.md`, the complete test suite and PostgreSQL verification scripts. The new `usage_counters` table stores atomic durable limits; `scripts/export_schema.py` reproduces the application DDL. The version-1 additive initializer is not a changed-column migration system. Read `docs/submission/compliance-matrix.md` and the deployment policy for current live/deployment blockers; diagrams and decisions cannot establish provider billing or live quality.
+
+## ADR-009 - Deny external spending until unbilled access is established
+
+**Accepted.** R0 is an operating requirement. Fixture mode is the safe default; provider-specific operator attestations plus a global switch are mandatory before live attempts. Persistent atomic daily/operation budgets bound retries and recovered runs; they count attempts rather than currency and cannot make a paid account free. Fixed model/endpoint allowlists, no paid fallback, explicit Developer API and disabled SDK retries keep provider behaviour constrained. Account eligibility or missing durable free hosting remains a documented blocker, with local operation as the safe alternative.

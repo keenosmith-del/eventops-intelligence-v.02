@@ -1,0 +1,17 @@
+{
+  "status": "blocked",
+  "missing": [
+    "live_mode",
+    "external_calls_enabled",
+    "gemini_key",
+    "gemini_models_unbilled_confirmed",
+    "google_oauth_client",
+    "google_unbilled_confirmed",
+    "token_encryption_key",
+    "directory_url",
+    "directory_zero_cost_confirmed"
+  ],
+  "external_calls": 0,
+  "live_verified": false,
+  "deployment_verified": false
+}

@@ -16,7 +16,7 @@ Copy `.env.example` to `.env` only if no file exists. Set `DEMO_PASSWORD`; start
 | `FRONTEND_ORIGIN` | Exact allowed origin, no trailing slash |
 | `COOKIE_SECURE`, `COOKIE_SAMESITE` | Local `false/lax`; cross-site HTTPS `true/none` |
 | `GEMINI_API_KEY` | Gemini Developer API key from an account with free access; no billing enabled |
-| `GEMINI_MODEL`, `EMBEDDING_MODEL` | Configurable model IDs; defaults 2.5 Flash / embedding-001 |
+| `GEMINI_MODEL`, `EMBEDDING_MODEL` | Audited allowlisted model IDs; defaults 2.5 Flash / embedding-001 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Dedicated Google OAuth web application |
 | `GOOGLE_REDIRECT_URI` | Exact callback URI registered in Google Cloud |
 | `TOKEN_ENCRYPTION_KEY` | Persistent Fernet key; losing it makes saved tokens unreadable |
@@ -57,3 +57,13 @@ For `n8n` transport, authorize Google separately in n8n and assign those credent
 From repository root: `backend/.venv/bin/python scripts/init_db.py`. Application tables use SQLAlchemy `create_all` as reproducible version-1 initialization; this does not migrate changed columns. A PostgreSQL DDL export is at `docs/architecture/schema.sql`. LangGraph's Postgres saver performs its own checkpoint schema setup at startup. Before evolving production schemas, introduce a versioned migration tool and backups.
 
 Worker deployment uses one Uvicorn process by default. PostgreSQL row locks protect claims; leases renew while a graph runs. Checkpoints resume unfinished transitions after lease expiry. Read-only integrations permit safe repeated reads. Execution logs provide at-least-once records; duplicate tool events may occur across crash recovery and are not silently removed.
+
+## Zero-cost boundaries and verification
+
+Defaults are `MODE=fixture`, `ENVIRONMENT=local`, `EXTERNAL_CALLS_ENABLED=false`. A key alone cannot enable calls. Live mode also needs provider-specific `*_CONFIRMED` flags after independent account/billing verification; see [operating policy](../docs/deployment/README.md). Never set those flags to bypass unknown account state. Gemini 2.5 access and embedding-001 pricing must be confirmed for the actual project; an unavailable free model is a blocker, not permission to upgrade.
+
+Maximum reservations: 20 model attempts/day, nine/operation; 100 HTTP units/day and/operation; configuration permits lower limits only. UTC daily counters and operation counters persist atomically in `usage_counters`. Retries consume new units even on failure; SDK retries are disabled. Model input is capped at 60,000 characters and generation at 4,096 output tokens. Direct reads cap Calendar at 100 events and Gmail at 30 messages; n8n Gmail caps at 20. No pagination or paid fallback occurs. The worker keeps the same operation ID across checkpoint recovery and rejects a saved run whose mode differs.
+
+Production validation requires PostgreSQL even in fixture mode, secure cookies, HTTPS frontend and SSL for a remote database. Local Compose volumes retain application and n8n state. The filesystem holds repository fixtures, not authoritative live conversation/run state. A public durable n8n host and managed PostgreSQL are still unconfirmed.
+
+Use `pytest` for deterministic checks and `scripts/smoke.py`, `check_restart.py`, `check_checkpoint.py`, `check_budget.py` for actual local PostgreSQL checks. [Application module reference](app/README.md) lists each source file's responsibility, interface, tests and limitations. Real Gemini/Google/n8n/HTTP verification is explicitly pending and separate from fixture tests.

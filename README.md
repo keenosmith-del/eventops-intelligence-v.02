@@ -6,7 +6,7 @@ An event operations workspace combining evidence-grounded knowledge retrieval wi
 
 The implementation supports live services, but credentials and hosting authorization must be supplied before the assessment's live RAG, real Google and public deployment requirements can be demonstrated. No deployment URL or live evaluation is claimed. `MODE=fixture` runs an explicitly labeled local demonstration with synthetic records and deterministic model doubles. It does **not** establish semantic retrieval quality or successful external integrations.
 
-The [verification report](docs/testing/results.md) records executed checks. Read [deployment](docs/deployment/README.md) for exact account actions and [live checks](docs/testing/live-checks.md) before presenting the assessment as complete.
+The [verification report](docs/testing/results.md) records executed checks. Read the [compliance matrix](docs/submission/compliance-matrix.md) and [deployment](docs/deployment/README.md) for exact account actions and [live checks](docs/testing/live-checks.md) before presenting the assessment as complete.
 
 ## Quick start on macOS
 
@@ -21,7 +21,7 @@ python3.12 -m venv backend/.venv
 backend/.venv/bin/python -m pip install -r backend/requirements.lock
 ```
 
-Edit root `.env` to set a random `N8N_ENCRYPTION_KEY`. Edit `backend/.env` to set a strong `DEMO_PASSWORD`. For a credential-free demonstration set `MODE=fixture`. For live operation set `MODE=live` and follow the Google/Gemini setup in the backend README. Do not overwrite existing configured environment files.
+Edit root `.env` to set a random `N8N_ENCRYPTION_KEY`. Edit `backend/.env` to set a strong `DEMO_PASSWORD`. For a credential-free demonstration set `MODE=fixture`. For live operation first verify the zero-cost policy/account confirmations, then set `MODE=live` and follow the Google/Gemini setup in the backend README. Do not overwrite existing configured environment files.
 
 ```sh
 docker compose up -d
@@ -81,3 +81,7 @@ npm run build
 ## Operational boundaries
 
 Read-only integrations never send messages or modify calendars. One shared demo operator is intentionally supported; this is not a multi-tenant identity system. Knowledge is curated from repository data, not arbitrary uploads. Directory URL is server configured, not chosen by the model. Durable deployment requires managed PostgreSQL and persistent n8n storage. No paid infrastructure is provisioned by this repository.
+
+## Audit status
+
+External calls are disabled by default and protected by durable per-operation/daily attempt budgets. Local fixture operation uses existing hardware, PostgreSQL and self-hosted n8n without cloud/API charges. An advertised free cloud plan does not establish R0 for the actual account. No billing was enabled and no cloud resource provisioned. Strict zero-cost public deployment remains unconfirmed; use the local demonstration until hosting, durable storage and provider account terms are independently verified. Current requirement-by-requirement evidence and submission blockers are in [compliance matrix](docs/submission/compliance-matrix.md).

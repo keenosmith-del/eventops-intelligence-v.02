@@ -10,7 +10,7 @@ No Gemini key, authorized dedicated Google account or hosting access was supplie
 - Small curated corpus, whole-record chunks and exact vector scans. No pgvector ANN index; adopt one when latency/corpus size warrants it.
 - Pydantic output validation and actual citation identity checks cannot prove that every generated assertion is entailed; complete live retrieval/grounding evaluation.
 - Ambiguous intent handling relies on Gemini returning clarification/unsupported output and requires live grading. Fixture answers only expose records, rather than simulating generated reasoning.
-- Source count limits reject truncation rather than paginate indefinitely: Calendar 100 results, Gmail 30 messages, HTTP 500 rows. Tune safe limits for real operations.
+- Source count limits reject truncation rather than paginate indefinitely: Calendar 100 results, Gmail 30 messages, HTTP 500 rows. Direct Gmail caps at 30, n8n at 20; never increase limits to bypass the R0 policy.
 - Plain-text email bodies only; HTML-only registrations become incomplete evidence. Add controlled HTML-to-text parsing if required.
 - Unresolved runs end in review_required with staff notes. They do not suspend on LangGraph's interactive interrupt API or support approval overriding deterministic rules.
 - A single worker polls a durable queue. Checkpoint/node events are at-least-once across interruption; live service reads can repeat after recovery. No external writes are performed.
@@ -25,3 +25,9 @@ No Gemini key, authorized dedicated Google account or hosting access was supplie
 ## Priorities
 
 First supply account access, execute the live checklist and record real deployment evidence. Then strengthen migrations/constraints, add real model regression evaluation, durable queue monitoring and field-level source spans. At larger scale use pgvector with calibrated recall, pagination and async provider I/O; retain exact IDs, source hierarchy and deterministic verification behavior.
+
+## Hardening audit boundaries
+
+External calls now default to disabled, with durable atomic UTC daily/per-operation caps, disabled SDK retries and bounded model input/output. This does not prove provider billing state: exact model pricing/eligibility, Workspace policy changes, hosting payment methods and durable free storage remain account-dependent blockers. New Google projects may lack access to 2.5 models; current embedding-001 free pricing has not been established from the opened pricing page. Keep the local fixture alternative until independent confirmation. Public R0 deployment is not certified.
+
+Manual n8n calls and its internal OAuth refresh are outside FastAPI's exact downstream metering; exports are inactive and explicitly blocked until operator confirmation, and node fan-out/time/retries are bounded. n8n's local CLI warns PostgreSQL 16 is compatibility-supported; a future major-version change needs backup/restore. Counters have no retention cleanup. The complete current status is in `submission/compliance-matrix.md`, and all genuine live tests remain explicitly not executed rather than silently skipped.

@@ -37,3 +37,11 @@ EVT-102 and EVT-103 each have three clean verified participants. Unavailable inf
 ## Authority
 
 The published directory owns participant identity, organization, active status and event eligibility. Registration correspondence owns submitted registration fields; Calendar owns invitation evidence. Neither source silently replaces another. A mismatch requires review. RAG's repository knowledge snapshot and the agent's live HTTP directory can diverge if the directory is updated without re-ingestion; track both source versions during a demonstration.
+
+## Domain audit and additional adversarial cases
+
+Before ingestion, `backend/app/rag.py:parse_documents` validates unique event/participant/email identities, event references from policies and directory records, organizations, timezone-aware deadlines and event schedules. These authoritative records must be coherent. Registration evidence is deliberately allowed to contradict them; validation must preserve the discrepancy for verification.
+
+`fixtures/email-edge-cases.json` specifies three additional EVT-102 mutations without changing the seven-row EVT-101 baseline: a valid-format typo, a malformed address, and use of another participant's email. All require review, preserve the submitted address and original source, and cannot enter verified CSV. `test_wrong_and_malformed_emails_cannot_verify` checks each expected status/reason. Other edge cases are covered by `fixtures/expected.json` and `test_verification.py`, including missing directory/source tests.
+
+Run `backend/.venv/bin/python -m pytest backend/tests/test_rag.py backend/tests/test_verification.py -q`. Fixture labels test extraction contracts, not Gemini extraction quality. Local records do not prove consent, receipt of live registrations, or freshness of a published directory.
