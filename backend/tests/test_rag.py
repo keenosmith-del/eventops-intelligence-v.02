@@ -1,7 +1,7 @@
 import json
 import pytest
 from sqlalchemy import select, func
-from app.db import Chunk, Document, Conversation, Message
+from app.db import Chunk, Conversation, Message
 from app.rag import ingest, retrieve, ask, parse_documents, cosine
 from app.ai import AI, ModelFailure
 from app.schemas import Query, Answer, Participant
@@ -115,3 +115,42 @@ def test_embedding_dimension_mismatch():
 def test_missing_index_is_explicit(db):
     with pytest.raises(ModelFailure, match="empty"):
         retrieve(db, "When is EVT-101?", [], AI())
+
+
+def test_non_finite_vectors_rejected():
+    from app.rag import cosine
+    from app.ai import ModelFailure
+    import pytest
+
+    with pytest.raises(ModelFailure, match="non-finite"):
+        cosine([float("nan")], [1.0])
+
+
+def test_authoritative_domain_references_validated(monkeypatch):
+    import json
+    from pathlib import Path
+    import pytest
+    from app.rag import parse_documents
+
+    original = Path.read_text
+
+    def broken(path, *args, **kwargs):
+        text = original(path, *args, **kwargs)
+        if path.name == "directory.json":
+            records = json.loads(text)
+            records[0]["event_ids"] = ["EVT-999"]
+            return json.dumps(records)
+        return text
+
+    monkeypatch.setattr(Path, "read_text", broken)
+    with pytest.raises(ValueError, match="unknown event"):
+        parse_documents()
+
+
+def test_public_directory_snapshot_matches_authoritative_records():
+    import json
+    from app.config import ROOT
+
+    assert json.loads(
+        (ROOT / "frontend/public/reference/directory.json").read_text()
+    ) == json.loads((ROOT / "data/structured/directory.json").read_text())

@@ -16,4 +16,4 @@ for table in Base.metadata.sorted_tables:
         str(CreateIndex(i).compile(dialect=postgresql.dialect())) + ";"
         for i in table.indexes
     )
-(root / "docs/architecture/schema.sql").write_text("\n".join(statements))
+(root / "docs/architecture/schema.sql").write_text("\n".join(line.rstrip() for statement in statements for line in statement.splitlines()) + "\n")

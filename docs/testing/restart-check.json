@@ -1,5 +1,8 @@
 {
   "database": "PostgreSQL",
+  "document_checksums_survived": 3,
+  "execution_events_survived": 13,
+  "usage_counter_survived": true,
   "session_survived": true,
   "conversation_survived": true,
   "run_survived": true,

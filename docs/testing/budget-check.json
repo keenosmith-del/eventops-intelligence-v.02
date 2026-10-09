@@ -1,0 +1,8 @@
+{
+  "database": "PostgreSQL",
+  "concurrent_attempts": 12,
+  "accepted": 3,
+  "cap": 3,
+  "persisted_after_connection_reconstruction": true,
+  "external_calls": 0
+}

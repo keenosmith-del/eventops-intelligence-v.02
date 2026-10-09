@@ -1,11 +1,14 @@
 import hashlib
 import json
 import math
-from sqlalchemy import select, delete
-from .config import ROOT, settings
-from .db import Document, Chunk, Message, Conversation, now
-from .schemas import Event, Policy, Participant
+
+from sqlalchemy import delete, select
+
 from .ai import AI, ModelFailure
+from .config import ROOT, settings
+from .costs import bounded_operation
+from .db import Chunk, Conversation, Document, Message, now
+from .schemas import Event, Participant, Policy
 
 SCHEMAS = {"events.json": Event, "policies.json": Policy, "directory.json": Participant}
 
@@ -18,9 +21,46 @@ def parse_documents():
         if len({r["record_id"] for r in records}) != len(records):
             raise ValueError("Duplicate record identifiers")
         result.append((filename, raw, records))
+    by_name = {name: records for name, _, records in result}
+    events = by_name["events.json"]
+    ids = {r["event_id"] for r in events}
+    directory = by_name["directory.json"]
+    organizations = json.loads(
+        (ROOT / "data/structured/organizations.json").read_text()
+    )
+    org_names = {r["name"] for r in organizations}
+    if len(ids) != len(events) or len(org_names) != len(organizations):
+        raise ValueError("Duplicate domain identifiers")
+    for key in ("participant_id", "email"):
+        if len({r[key] for r in directory}) != len(directory):
+            raise ValueError("Ambiguous authoritative participant identity")
+    if any(
+        set(r["event_ids"]) - ids or r["organization"] not in org_names
+        for r in directory
+    ):
+        raise ValueError("Directory references an unknown event or organization")
+    if any(
+        r["event_id"] and r["event_id"] not in ids for r in by_name["policies.json"]
+    ):
+        raise ValueError("Policy references an unknown event")
+    from datetime import date, datetime, time
+    from zoneinfo import ZoneInfo
+
+    for r in events:
+        day = date.fromisoformat(r["date"])
+        start = datetime.combine(
+            day, time.fromisoformat(r["start_time"]), ZoneInfo(r["timezone"])
+        )
+        end = datetime.combine(
+            day, time.fromisoformat(r["end_time"]), ZoneInfo(r["timezone"])
+        )
+        deadline = datetime.fromisoformat(r["registration_deadline"])
+        if deadline.tzinfo is None or not deadline < start < end:
+            raise ValueError("Invalid event schedule or registration deadline")
     return result
 
 
+@bounded_operation
 def ingest(db, ai=None):
     ai = ai or AI()
     parsed = parse_documents()  # Validate all documents before changing index.
@@ -79,6 +119,8 @@ def ingest(db, ai=None):
 
 
 def cosine(a, b):
+    if not a or not b or not all(math.isfinite(x) for x in a + b):
+        raise ModelFailure("Invalid non-finite or empty embedding")
     if len(a) != len(b):
         raise ModelFailure("Index embedding dimensions differ; re-ingest knowledge")
     return sum(x * y for x, y in zip(a, b)) / (
@@ -87,12 +129,16 @@ def cosine(a, b):
 
 
 def retrieve(db, question, history, ai):
-    intent = ai.intent(question, history)
     docs = db.scalars(select(Document)).all()
     if not docs:
         raise ModelFailure("Knowledge index is empty. Run ingestion first.")
     if any(d.ingestion["mode"] != settings().mode for d in docs):
         raise ModelFailure("Index mode differs; re-ingest knowledge")
+    if settings().mode == "live" and any(
+        d.ingestion.get("embedding") != settings().embedding_model for d in docs
+    ):
+        raise ModelFailure("Index model differs; re-ingest knowledge")
+    intent = ai.intent(question, history)
     vector = ai.embed([intent.query], "RETRIEVAL_QUERY")[0]
     chunks = db.scalars(select(Chunk)).all()
     if intent.event_id:
@@ -121,6 +167,7 @@ def retrieve(db, question, history, ai):
     return evidence, intent
 
 
+@bounded_operation
 def ask(db, owner, request, ai=None):
     ai = ai or AI()
     if request.conversation_id:
@@ -137,7 +184,7 @@ def ask(db, owner, request, ai=None):
         .order_by(Message.created_at.desc())
         .limit(8)
     ).all()
-    history = [{"role": m.role, "content": m.content} for m in reversed(prior)]
+    history = [{"role": m.role, "content": m.content[:4000]} for m in reversed(prior)]
     evidence, intent = retrieve(db, request.question, history, ai)
     answer = ai.answer(request.question, history, evidence)
     ids = {e["id"] for e in evidence}

@@ -70,3 +70,23 @@ def test_normalization_preserves_source_ids():
         rows[0]["evidence"][0]["source_id"] == a[1]["source_id"]
         or rows[0]["evidence"][0]["source_id"] == a[3]["source_id"]
     )
+
+
+def test_wrong_and_malformed_emails_cannot_verify():
+    scenarios = json.loads((ROOT / "data/fixtures/email-edge-cases.json").read_text())
+    for scenario in scenarios:
+        a, d = fixture_records("EVT-102")
+        registration = next(
+            r
+            for r in a
+            if r["source_type"] == "gmail" and r["participant_id"] == "P-001"
+        )
+        registration["email"] = scenario["submitted_email"]
+        rows = verify(a, d, "EVT-102")
+        row = next(
+            r for r in rows if r["record"]["email"] == scenario["submitted_email"]
+        )
+        assert row["status"] == scenario["expected_status"]
+        assert scenario["expected_reason"] in row["reasons"]
+        assert row["status"] != "verified"
+        assert row["evidence"][0]["original"]["email"] == scenario["submitted_email"]

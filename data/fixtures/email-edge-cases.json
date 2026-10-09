@@ -1,0 +1,5 @@
+[
+  {"scenario":"Valid-format typo against known identity", "submitted_email":"amara.typo@example.org", "expected_status":"review_required", "expected_reason":"Email conflicts with directory"},
+  {"scenario":"Malformed email against known identity", "submitted_email":"amara-at-example.org", "expected_status":"review_required", "expected_reason":"Invalid email format"},
+  {"scenario":"Another participant's email", "submitted_email":"cara@example.org", "expected_status":"review_required", "expected_reason":"Participant identifier mismatch"}
+]

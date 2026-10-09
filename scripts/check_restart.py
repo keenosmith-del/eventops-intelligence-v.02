@@ -9,6 +9,8 @@ import httpx
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root / "backend"))
 from app.config import settings
+from app.db import DB, Document, Execution, UsageCounter
+from sqlalchemy import select, func
 
 cfg = settings()
 target = os.environ.get("SMOKE_API_URL", "http://localhost:5050")
@@ -23,9 +25,20 @@ with httpx.Client(
         )
         assert response.status_code == 200
         baseline = json.loads((root / "docs/testing/postgres-smoke.json").read_text())
+        with DB() as db:
+            documents = {d.id: d.checksum for d in db.scalars(select(Document))}
+            execution_count = db.scalar(
+                select(func.count())
+                .select_from(Execution)
+                .where(Execution.run_id == baseline["run_id"])
+            )
+            db.merge(UsageCounter(id="audit:restart-persistence", used=7))
+            db.commit()
         private.write_text(
             json.dumps(
                 {
+                    "documents": documents,
+                    "execution_count": execution_count,
                     "cookie": c.cookies.get("eventops_session"),
                     "run_id": baseline["run_id"],
                     "conversation_id": baseline["conversation_id"],
@@ -47,10 +60,26 @@ with httpx.Client(
         )
         assert len(c.get("/api/conversations/" + saved["conversation_id"]).json()) == 2
         assert len(c.get("/api/runs/" + saved["run_id"] + "/results").json()) == 7
+        with DB() as db:
+            assert {d.id: d.checksum for d in db.scalars(select(Document))} == saved[
+                "documents"
+            ]
+            assert (
+                db.scalar(
+                    select(func.count())
+                    .select_from(Execution)
+                    .where(Execution.run_id == saved["run_id"])
+                )
+                == saved["execution_count"]
+            )
+            assert db.get(UsageCounter, "audit:restart-persistence").used == 7
         (root / "docs/testing/restart-check.json").write_text(
             json.dumps(
                 {
                     "database": "PostgreSQL",
+                    "document_checksums_survived": len(saved["documents"]),
+                    "execution_events_survived": saved["execution_count"],
+                    "usage_counter_survived": True,
                     "session_survived": True,
                     "conversation_survived": True,
                     "run_survived": True,
