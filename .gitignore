@@ -1,0 +1,51 @@
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+!**/.env.example
+credentials.json
+token.json
+client_secret*.json
+*.pem
+*.key
+.streamlit/secrets.toml
+.n8n/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / React
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Runtime storage
+data/runtime/
+data/generated/
+storage/
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log
+logs/
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
