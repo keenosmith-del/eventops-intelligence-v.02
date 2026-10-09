@@ -2,6 +2,8 @@
 
 Python 3.12 / FastAPI, SQLAlchemy with psycopg, official Google Gen AI SDK and LangGraph. Run from `backend/`: `.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 5050`. Configuration loads `backend/.env` independently of the working directory.
 
+The checked-in `requirements.lock` records the verified Python environment; install it for reproducible builds. `requirements.txt` defines supported direct dependencies for deliberate updates.
+
 ## Configuration
 
 Copy `.env.example` to `.env` only if no file exists. Set `DEMO_PASSWORD`; startup refuses an empty password. PostgreSQL is required in live mode. SQLite is permitted only for isolated fixture tests. The default demonstration is not automatically substituted when a live dependency fails.

@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 10
   n8n:
-    image: docker.n8n.io/n8nio/n8n:2.0.3
+    image: ${N8N_IMAGE:-docker.n8n.io/n8nio/n8n@sha256:526daa38b68e923cc00c5280d18b4da5d489f115a73bdbf3b8e452b184197a9a}
     ports: ["127.0.0.1:5678:5678"]
     environment:
       DB_TYPE: postgresdb
