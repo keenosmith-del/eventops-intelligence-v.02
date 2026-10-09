@@ -1,0 +1,30 @@
+[
+  {
+    "record_id": "policy-001",
+    "event_id": null,
+    "title": "Registration authority",
+    "rule": "The published participant directory is authoritative for participant identity, organization, active status and event eligibility. Invitations alone do not confirm registration.",
+    "authority": "Event Operations"
+  },
+  {
+    "record_id": "policy-002",
+    "event_id": null,
+    "title": "Refunds",
+    "rule": "Cancellation at least seven days before the event qualifies for a full refund. Later cancellations require staff review.",
+    "authority": "Finance"
+  },
+  {
+    "record_id": "policy-003",
+    "event_id": "EVT-101",
+    "title": "Check-in schedule",
+    "rule": "Check-in opens at 08:30. The programme starts at 09:00. Registration closes on 12 November 2026 at 17:00 SAST.",
+    "authority": "Event Operations"
+  },
+  {
+    "record_id": "policy-004",
+    "event_id": null,
+    "title": "Contact verification",
+    "rule": "An active directory match, explicit registration evidence and a matching invitation are required for verified export. Missing, duplicate or conflicting records require review.",
+    "authority": "Event Operations"
+  }
+]

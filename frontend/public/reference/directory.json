@@ -1,0 +1,73 @@
+[
+  {
+    "record_id": "directory-001",
+    "participant_id": "P-001",
+    "name": "Amara Dlamini",
+    "email": "amara@example.org",
+    "organization": "Cedar Collective",
+    "active": true,
+    "event_ids": [
+      "EVT-101",
+      "EVT-102"
+    ]
+  },
+  {
+    "record_id": "directory-002",
+    "participant_id": "P-002",
+    "name": "Ben Jacobs",
+    "email": "ben@example.org",
+    "organization": "Northline Labs",
+    "active": true,
+    "event_ids": [
+      "EVT-101",
+      "EVT-103"
+    ]
+  },
+  {
+    "record_id": "directory-003",
+    "participant_id": "P-003",
+    "name": "Cara Naidoo",
+    "email": "cara@example.org",
+    "organization": "Cedar Collective",
+    "active": true,
+    "event_ids": [
+      "EVT-101",
+      "EVT-102"
+    ]
+  },
+  {
+    "record_id": "directory-004",
+    "participant_id": "P-004",
+    "name": "Daniel Mokoena",
+    "email": "daniel@example.org",
+    "organization": "Harbour Network",
+    "active": false,
+    "event_ids": [
+      "EVT-101"
+    ]
+  },
+  {
+    "record_id": "directory-005",
+    "participant_id": "P-005",
+    "name": "Elena Petersen",
+    "email": "elena@example.org",
+    "organization": "Harbour Network",
+    "active": true,
+    "event_ids": [
+      "EVT-101",
+      "EVT-103"
+    ]
+  },
+  {
+    "record_id": "directory-006",
+    "participant_id": "P-006",
+    "name": "Farai Ncube",
+    "email": "farai@example.org",
+    "organization": "Northline Labs",
+    "active": true,
+    "event_ids": [
+      "EVT-102",
+      "EVT-103"
+    ]
+  }
+]

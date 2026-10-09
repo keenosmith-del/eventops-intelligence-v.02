@@ -1,0 +1,99 @@
+{
+  "EVT-101": [
+    {
+      "id": "cal-EVT-101",
+      "summary": "EVT-101 Operations Leadership Forum",
+      "start": {
+        "dateTime": "2026-11-15T09:00:00+02:00"
+      },
+      "end": {
+        "dateTime": "2026-11-15T16:00:00+02:00"
+      },
+      "attendees": [
+        {
+          "displayName": "Amara Dlamini",
+          "email": "amara@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Ben Jacobs",
+          "email": "ben@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Cara Naidoo",
+          "email": "cara@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Daniel Mokoena",
+          "email": "daniel@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Elena Petersen",
+          "email": "elena@example.org",
+          "responseStatus": "accepted"
+        }
+      ]
+    }
+  ],
+  "EVT-102": [
+    {
+      "id": "cal-EVT-102",
+      "summary": "EVT-102 Community Systems Workshop",
+      "start": {
+        "dateTime": "2026-11-22T09:00:00+02:00"
+      },
+      "end": {
+        "dateTime": "2026-11-22T16:00:00+02:00"
+      },
+      "attendees": [
+        {
+          "displayName": "Amara Dlamini",
+          "email": "amara@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Cara Naidoo",
+          "email": "cara@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Farai Ncube",
+          "email": "farai@example.org",
+          "responseStatus": "accepted"
+        }
+      ]
+    }
+  ],
+  "EVT-103": [
+    {
+      "id": "cal-EVT-103",
+      "summary": "EVT-103 Partner Collaboration Summit",
+      "start": {
+        "dateTime": "2026-11-29T09:00:00+02:00"
+      },
+      "end": {
+        "dateTime": "2026-11-29T16:00:00+02:00"
+      },
+      "attendees": [
+        {
+          "displayName": "Ben Jacobs",
+          "email": "ben@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Elena Petersen",
+          "email": "elena@example.org",
+          "responseStatus": "accepted"
+        },
+        {
+          "displayName": "Farai Ncube",
+          "email": "farai@example.org",
+          "responseStatus": "accepted"
+        }
+      ]
+    }
+  ]
+}

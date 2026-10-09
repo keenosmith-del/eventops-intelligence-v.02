@@ -1,0 +1,204 @@
+{
+  "EVT-101": [
+    {
+      "id": "mail-EVT-101-P-001",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Amara Dlamini. Email: amara@example.org. Participant: P-001. Organization: Cedar Collective.",
+      "fixture_attendee": {
+        "name": "Amara Dlamini",
+        "email": "amara@example.org",
+        "participant_id": "P-001",
+        "organization": "Cedar Collective",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-P-001",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-101-P-002",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Ben Jacobs. Email: ben@example.org. Participant: P-002. Organization: Northline Labs.",
+      "fixture_attendee": {
+        "name": "Ben Jacobs",
+        "email": "ben@example.org",
+        "participant_id": "P-002",
+        "organization": "Northline Labs",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-P-002",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-101-P-003",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Carla Naidoo. Email: cara@example.org. Participant: P-003. Organization: Cedar Collective.",
+      "fixture_attendee": {
+        "name": "Carla Naidoo",
+        "email": "cara@example.org",
+        "participant_id": "P-003",
+        "organization": "Cedar Collective",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-P-003",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-101-P-004",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Daniel Mokoena. Email: daniel@example.org. Participant: P-004. Organization: Harbour Network.",
+      "fixture_attendee": {
+        "name": "Daniel Mokoena",
+        "email": "daniel@example.org",
+        "participant_id": "P-004",
+        "organization": "Harbour Network",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-P-004",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-101-P-005",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Elena Petersen. Email: elena@example.org. Participant: P-005. Organization: Harbour Consulting.",
+      "fixture_attendee": {
+        "name": "Elena Petersen",
+        "email": "elena@example.org",
+        "participant_id": "P-005",
+        "organization": "Harbour Consulting",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-P-005",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-101-duplicate",
+      "subject": "Registration EVT-101",
+      "body": "I am registering for EVT-101. Name: Ben Jacobs. Email: ben@example.org. Participant: P-002. Organization: Northline Labs.",
+      "fixture_attendee": {
+        "name": "Ben Jacobs",
+        "email": "ben@example.org",
+        "participant_id": "P-002",
+        "organization": "Northline Labs",
+        "event_id": "EVT-101",
+        "source_id": "mail-EVT-101-duplicate",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-missing-email",
+      "subject": "Registration EVT-101",
+      "body": "Register EVT-101: Gina Smith. Email: not supplied",
+      "fixture_attendee": {
+        "name": "Gina Smith",
+        "email": null,
+        "participant_id": null,
+        "organization": null,
+        "event_id": "EVT-101",
+        "source_id": "mail-missing-email",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-unknown",
+      "subject": "Registration EVT-101",
+      "body": "Register EVT-101: Hugo Botha. Email: hugo@example.org",
+      "fixture_attendee": {
+        "name": "Hugo Botha",
+        "email": "hugo@example.org",
+        "participant_id": "P-099",
+        "organization": null,
+        "event_id": "EVT-101",
+        "source_id": "mail-unknown",
+        "source_type": "gmail"
+      }
+    }
+  ],
+  "EVT-102": [
+    {
+      "id": "mail-EVT-102-P-001",
+      "subject": "Registration EVT-102",
+      "body": "I am registering for EVT-102. Name: Amara Dlamini. Email: amara@example.org. Participant: P-001. Organization: Cedar Collective.",
+      "fixture_attendee": {
+        "name": "Amara Dlamini",
+        "email": "amara@example.org",
+        "participant_id": "P-001",
+        "organization": "Cedar Collective",
+        "event_id": "EVT-102",
+        "source_id": "mail-EVT-102-P-001",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-102-P-003",
+      "subject": "Registration EVT-102",
+      "body": "I am registering for EVT-102. Name: Cara Naidoo. Email: cara@example.org. Participant: P-003. Organization: Cedar Collective.",
+      "fixture_attendee": {
+        "name": "Cara Naidoo",
+        "email": "cara@example.org",
+        "participant_id": "P-003",
+        "organization": "Cedar Collective",
+        "event_id": "EVT-102",
+        "source_id": "mail-EVT-102-P-003",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-102-P-006",
+      "subject": "Registration EVT-102",
+      "body": "I am registering for EVT-102. Name: Farai Ncube. Email: farai@example.org. Participant: P-006. Organization: Northline Labs.",
+      "fixture_attendee": {
+        "name": "Farai Ncube",
+        "email": "farai@example.org",
+        "participant_id": "P-006",
+        "organization": "Northline Labs",
+        "event_id": "EVT-102",
+        "source_id": "mail-EVT-102-P-006",
+        "source_type": "gmail"
+      }
+    }
+  ],
+  "EVT-103": [
+    {
+      "id": "mail-EVT-103-P-002",
+      "subject": "Registration EVT-103",
+      "body": "I am registering for EVT-103. Name: Ben Jacobs. Email: ben@example.org. Participant: P-002. Organization: Northline Labs.",
+      "fixture_attendee": {
+        "name": "Ben Jacobs",
+        "email": "ben@example.org",
+        "participant_id": "P-002",
+        "organization": "Northline Labs",
+        "event_id": "EVT-103",
+        "source_id": "mail-EVT-103-P-002",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-103-P-005",
+      "subject": "Registration EVT-103",
+      "body": "I am registering for EVT-103. Name: Elena Petersen. Email: elena@example.org. Participant: P-005. Organization: Harbour Network.",
+      "fixture_attendee": {
+        "name": "Elena Petersen",
+        "email": "elena@example.org",
+        "participant_id": "P-005",
+        "organization": "Harbour Network",
+        "event_id": "EVT-103",
+        "source_id": "mail-EVT-103-P-005",
+        "source_type": "gmail"
+      }
+    },
+    {
+      "id": "mail-EVT-103-P-006",
+      "subject": "Registration EVT-103",
+      "body": "I am registering for EVT-103. Name: Farai Ncube. Email: farai@example.org. Participant: P-006. Organization: Northline Labs.",
+      "fixture_attendee": {
+        "name": "Farai Ncube",
+        "email": "farai@example.org",
+        "participant_id": "P-006",
+        "organization": "Northline Labs",
+        "event_id": "EVT-103",
+        "source_id": "mail-EVT-103-P-006",
+        "source_type": "gmail"
+      }
+    }
+  ]
+}

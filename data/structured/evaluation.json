@@ -1,0 +1,9 @@
+[
+ {"id":"factual","question":"Where is EVT-101 held?","expected_sources":["events.json:event-101"],"supported":true,"expected_terms":["Sandton"]},
+ {"id":"multi-record","question":"When does registration for EVT-101 close and when does check-in begin?","expected_sources":["events.json:event-101","policies.json:policy-003"],"supported":true,"expected_terms":["08:30","12"]},
+ {"id":"ambiguous","question":"When is the event?","expected_sources":[],"supported":false,"expected_terms":[]},
+ {"id":"unsupported","question":"What will the weather be during EVT-101?","expected_sources":[],"supported":false,"expected_terms":[]},
+ {"id":"exact-id","question":"What is the venue and capacity of EVT-102?","expected_sources":["events.json:event-102"],"supported":true,"expected_terms":["Rosebank","60"]},
+ {"id":"conflict","question":"An email says Elena Petersen works for Harbour Consulting. What does the authoritative directory say for EVT-101?","expected_sources":["directory.json:directory-005"],"supported":true,"expected_terms":["Harbour Network"]},
+ {"id":"inactive","question":"Is Daniel Mokoena an active participant in EVT-101?","expected_sources":["directory.json:directory-004"],"supported":true,"expected_terms":["inactive"]}
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "record_id": "event-101",
+    "event_id": "EVT-101",
+    "name": "Operations Leadership Forum",
+    "date": "2026-11-15",
+    "start_time": "09:00",
+    "end_time": "16:00",
+    "timezone": "Africa/Johannesburg",
+    "venue": "Sandton Convention Studio",
+    "capacity": 60,
+    "registration_deadline": "2026-11-12T17:00:00+02:00"
+  },
+  {
+    "record_id": "event-102",
+    "event_id": "EVT-102",
+    "name": "Community Systems Workshop",
+    "date": "2026-11-22",
+    "start_time": "09:00",
+    "end_time": "16:00",
+    "timezone": "Africa/Johannesburg",
+    "venue": "Rosebank Learning Hub",
+    "capacity": 60,
+    "registration_deadline": "2026-11-19T17:00:00+02:00"
+  },
+  {
+    "record_id": "event-103",
+    "event_id": "EVT-103",
+    "name": "Partner Collaboration Summit",
+    "date": "2026-11-29",
+    "start_time": "09:00",
+    "end_time": "16:00",
+    "timezone": "Africa/Johannesburg",
+    "venue": "Cape Town Exchange",
+    "capacity": 60,
+    "registration_deadline": "2026-11-26T17:00:00+02:00"
+  }
+]

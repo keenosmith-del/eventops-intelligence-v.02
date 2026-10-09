@@ -1,0 +1,31 @@
+{
+  "EVT-101": {
+    "verified": [
+      "amara@example.org"
+    ],
+    "review_required": [
+      "ben@example.org",
+      "cara@example.org",
+      "daniel@example.org",
+      "elena@example.org",
+      "Gina Smith"
+    ],
+    "unverified": [
+      "hugo@example.org"
+    ]
+  },
+  "EVT-102": {
+    "verified": [
+      "amara@example.org",
+      "cara@example.org",
+      "farai@example.org"
+    ]
+  },
+  "EVT-103": {
+    "verified": [
+      "ben@example.org",
+      "elena@example.org",
+      "farai@example.org"
+    ]
+  }
+}
